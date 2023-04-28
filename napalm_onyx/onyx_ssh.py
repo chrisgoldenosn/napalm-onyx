@@ -37,7 +37,6 @@ from napalm.base import NetworkDriver
 import napalm.base.helpers
 from napalm.base import helpers
 from napalm.base.netmiko_helpers import netmiko_args
-from napalm.base.utils import py23_compat
 from napalm.base.exceptions import MergeConfigException
 from napalm.base.exceptions import CommandErrorException
 from napalm.base.exceptions import ReplaceConfigException
@@ -304,7 +303,7 @@ class ONYXSSHDriver(NetworkDriver):
     @staticmethod
     def _create_tmp_file(config):
         tmp_dir = tempfile.gettempdir()
-        rand_fname = py23_compat.text_type(uuid.uuid4())
+        rand_fname = str(uuid.uuid4())
         filename = os.path.join(tmp_dir, rand_fname)
         with open(filename, 'wt') as fobj:
             fobj.write(config)
@@ -483,9 +482,9 @@ class ONYXSSHDriver(NetworkDriver):
         return {
             "uptime": int(uptime),
             "vendor": vendor,
-            "os_version": py23_compat.text_type(os_version),
-            "model": py23_compat.text_type(model),
-            "hostname": py23_compat.text_type(hostname),
+            "os_version": str(os_version),
+            "model": str(model),
+            "hostname": str(hostname),
             "interface_list": interface_list,
         }
 
@@ -629,7 +628,7 @@ class ONYXSSHDriver(NetworkDriver):
 
         for command in commands:
             output = self.device.send_command(command)
-            cli_output[py23_compat.text_type(command)] = output
+            cli_output[str(command)] = output
         return cli_output
 
     def get_arp_table(self):
@@ -812,14 +811,14 @@ class ONYXSSHDriver(NetworkDriver):
         if retrieve in ('running', 'all'):
             command = 'show running-config'
             running_config = self._send_command(command)
-            config['running'] = py23_compat.text_type(running_config)
+            config['running'] = str(running_config)
 
         if retrieve in ('startup', 'all'):
             command = 'show configuration files initial'
             initial_config = self._send_command(command)
-            config['startup'] = py23_compat.text_type(initial_config)
+            config['startup'] = str(initial_config)
 
         if retrieve in ('candidate', 'all'):
             if self.merge_candidate:
-                config['candidate'] = py23_compat.text_type(self.merge_candidate)
+                config['candidate'] = str(self.merge_candidate)
         return config
