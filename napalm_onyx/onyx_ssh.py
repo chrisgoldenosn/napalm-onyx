@@ -145,6 +145,7 @@ class ONYXSSHDriver(NetworkDriver):
         self.merge_candidate = ''
         self.netmiko_optional_args = netmiko_args(optional_args)
         self.device = None
+        self.force_no_enable = optional_args.get("force_no_enable", False)
 
     def open(self):
         self.device = self._netmiko_open(
