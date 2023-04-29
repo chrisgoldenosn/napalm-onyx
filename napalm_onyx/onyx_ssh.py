@@ -600,6 +600,41 @@ class ONYXSSHDriver(NetworkDriver):
 
         return interfaces
 
+    def get_lldp_neighbors_detail(self, interface=''):
+        self.disable_paging()
+        command = 'show lldp remote | json-print'
+        output = self.device.send_command(command)
+
+        data = json.loads(output)
+
+        interfaces = {}
+        for interface in data:
+            peers = []
+            for peer in data[interface]:
+                _device_id = ''
+                if 'Device ID' in peer:
+                     _device_id = peer['Device ID']
+                _port = ''
+                if 'Port ID' in peer:
+                    _port = peer['Port ID']
+                _hostname = ''
+                if 'System Name' in peer:
+                    _hostname = peer['System Name']
+
+                peers.append({'remote_chassis_id': _device_id,
+                              'remote_port': _port,
+                              'remote_port_description': '',
+                              'remote_system_name': _hostname,
+                              'remote_system_description': '',
+                              'remote_system_capab': [],
+                              'remote_system_enable_capab': [],
+                              'parent_interface': ''
+                              })
+
+            interfaces[interface] = peers
+
+        return interfaces
+
     def get_bgp_neighbors(self):
         raise NotImplementedError("get_bgp_neighbors is not supported yet for onyx devices")
 
@@ -619,8 +654,7 @@ class ONYXSSHDriver(NetworkDriver):
         self._delete_file(filename)
         return output
 
-    def get_lldp_neighbors_detail(self, interface=''):
-        raise NotImplementedError("get_lldp_neighbors_detail is not supported yet for onyx devices")
+
 
     def cli(self, commands):
         cli_output = {}
